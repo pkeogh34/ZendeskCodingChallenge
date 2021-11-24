@@ -1,13 +1,17 @@
-from tkinter import WORD, INSERT, RIGHT, Y, LEFT
+from tkinter import WORD, INSERT
 from urllib.parse import urlencode
-import tkinter as tk
+try:
+    import Tkinter as tkinter
+    import tk
+except:
+    import tkinter as tk
 
 from requests.exceptions import InvalidSchema
 
 from Data import Data
 
 subdomain = "zcczendeskcodingchallenge6845"
-encoded = "GF0cmljay5rZW9naDFAdWNkY29ubmVjdC5pZS90b2tlbjp1a05KSlVBaFRiMzRoMmZZejVuVTNGcVdEN2NTSWh1MEd5dENLQm1T"
+encoded = "cGF0cmljay5rZW9naDFAdWNkY29ubmVjdC5pZS90b2tlbjp1a05KSlVBaFRiMzRoMmZZejVuVTNGcVdEN2NTSWh1MEd5dENLQm1T"
 url_prefix = "https://%s.zendesk.com/api/v2/search.json" % subdomain
 url_headers = {'Content-Type': 'application/json', 'Authorization': 'Basic %s' % encoded}
 parameters = {'query': 'type:ticket', 'sort_by': 'created_at', 'sort_order': 'asc'}
@@ -32,9 +36,29 @@ def get_data(prefix, headers, params={}) -> object:
 
 
 def get_data_helper(event=None):
-    global ticket_data
-    ticket_data = get_data(url_prefix, url_headers, parameters)
-
+    global ticket_data, ticket_frame
+    try:
+        ticket_data = get_data(url_prefix, url_headers, parameters)
+    except InvalidSchema:
+        ticket_frame.destroy()
+        ticket_frame = tk.Frame(master=root)
+        error = tk.Label(master=ticket_frame, text="Could not connect to API", pady=5, font=('Helvetica bold', 16))
+        error.pack()
+        btn = tk.Button(master=ticket_frame, text="Exit", pady=5, width=5)
+        btn.bind('<Button-1>', close_window)
+        btn.pack()
+        ticket_frame.pack()
+        return
+    except KeyError:
+        ticket_frame.destroy()
+        ticket_frame = tk.Frame(master=root)
+        error = tk.Label(master=ticket_frame, text="Did not receive any data from API", pady=5, font=('Helvetica bold', 16))
+        error.pack()
+        btn = tk.Button(master=ticket_frame, text="Exit", pady=5, width=5)
+        btn.bind('<Button-1>', close_window)
+        btn.pack()
+        ticket_frame.pack()
+        return
     ticket_frame.destroy()
 
 
@@ -87,7 +111,7 @@ def create_buttons():
                 return open_ticket(num, event)
 
             ticket_btn.bind('<Button-1>', handler)
-            ticket_btn.pack()
+            ticket_btn.pack(fill="both", expand=True)
 
     canvas.pack(side="left", fill="both", expand=True)
     scrollbar.pack(side="right", fill="y")
@@ -124,7 +148,7 @@ def refresh():
     ticket_frame.destroy()
     pagination_frame.destroy()
     ticket_frame = tk.Frame(master=root)
-    pagination_frame = tk.Frame(master=root)
+    pagination_frame = tk.Frame(master=root, pady=7)
 
 
 root = tk.Tk()
@@ -155,7 +179,7 @@ lab.pack()
 ticket_frame.pack()
 root.wait_window(lab)
 ticket_frame = tk.Frame(master=root)
-pagination_frame = tk.Frame(master=root)
+pagination_frame = tk.Frame(master=root, pady=7)
 
 j = 0
 create_buttons()
