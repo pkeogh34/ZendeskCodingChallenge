@@ -47,6 +47,21 @@ def get_data_helper(event=None):
     ticket_frame.destroy()
 
 
+def open_ticket(num, event=None):
+    global ticket_data
+    ticket_root = tk.Tk()
+    text = tk.Text(ticket_root, wrap=WORD)
+    text.insert(INSERT, "Subject: %s\n\n" % ticket_data[num].subject)
+    text.insert(INSERT, "Date created: %s\n" % ticket_data[num].created)
+    text.insert(INSERT, "Last updated: %s\n\n" % ticket_data[num].updated)
+    text.insert(INSERT, "Requester ID: %s\n" % ticket_data[num].requester_id)
+    text.insert(INSERT, "Status: %s\n\n" % ticket_data[num].status)
+    text.insert(INSERT, ticket_data[num].description)
+    text.config(state='disabled')
+    text.grid()
+    ticket_root.mainloop()
+
+
 root = tk.Tk()
 root.geometry("%dx%d" % (w_width, w_height))
 root.resizable(False, False)
@@ -75,4 +90,4 @@ lab.pack()
 ticket_frame.pack()
 root.wait_window(lab)
 ticket_frame = tk.Frame(master=root)
-pagination_frame = tk.Frame(master=root)
+root.mainloop()
