@@ -11,10 +11,6 @@ class Ticket:
         self.tags = tags
         self.requester_id = requester_id
 
-    def to_string(self):
-        return ("Ticket ID: %s\n"
-                "Subject: %s" % (self._ticket_id, self.subject))
-
     @property
     def ticket_id(self):
         return self._ticket_id
