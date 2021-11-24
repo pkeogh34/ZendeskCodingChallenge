@@ -35,7 +35,7 @@ class Data:
             tags = obs["tags"]
             requester_id = obs["requester_id"]
             ticket = Ticket(ticket_id, created, updated, ticket_type, subject, description, status, tags, requester_id)
-            t_data[ticket.ticket_id - 1] = ticket
+            t_data[ticket.ticket_id-1] = ticket
         self.data = t_data
 
     def fetch_and_parse_data(self):

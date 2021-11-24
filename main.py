@@ -27,6 +27,26 @@ def centre_window(window, width, height):
     window.geometry("{}x{}+{}+{}".format(width, height, int(x), int(y)))
 
 
+def blue_text(event=None):
+    lab.config(fg="blue")
+
+
+def black_text(event=None):
+    lab.config(fg="black")
+
+
+def get_data(prefix, headers, params={}) -> object:
+    data = Data(get_url(prefix, params), headers)
+    data.fetch_and_parse_data()
+    return data.data
+
+
+def get_data_helper(event=None):
+    global ticket_data
+    ticket_data = get_data(url_prefix, url_headers, parameters)
+    ticket_frame.destroy()
+
+
 root = tk.Tk()
 root.geometry("%dx%d" % (w_width, w_height))
 root.resizable(False, False)
@@ -40,4 +60,19 @@ title_lbl = tk.Label(
 title_lbl.grid()
 title_frame.pack()
 
-root.mainloop()
+ticket_frame = tk.Frame(master=root)
+
+lab = tk.Label(
+    master=ticket_frame,
+    text="Click here to load ticket data from '%s.zendesk.com'" % subdomain,
+    font=('Helvetica', 12)
+)
+lab.bind("<Button-1>", get_data_helper)
+lab.bind("<Enter>", blue_text)
+lab.bind("<Leave>", black_text)
+lab.pack()
+
+ticket_frame.pack()
+root.wait_window(lab)
+ticket_frame = tk.Frame(master=root)
+pagination_frame = tk.Frame(master=root)
