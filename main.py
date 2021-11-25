@@ -7,38 +7,52 @@ except:
     import tkinter as tk
 
 from requests.exceptions import InvalidSchema
-
 from Data import Data
 
+# Subdomain for my Zendesk agent
 subdomain = "zcczendeskcodingchallenge6845"
+# String encoded with email and api key
 encoded = "cGF0cmljay5rZW9naDFAdWNkY29ubmVjdC5pZS90b2tlbjp1a05KSlVBaFRiMzRoMmZZejVuVTNGcVdEN2NTSWh1MEd5dENLQm1T"
+# prefix of the Zendesk API website
 url_prefix = "https://%s.zendesk.com/api/v2/search.json" % subdomain
+# Headers to send with get request
 url_headers = {'Content-Type': 'application/json', 'Authorization': 'Basic %s' % encoded}
+# Headers to send with get request
 parameters = {'query': 'type:ticket', 'sort_by': 'created_at', 'sort_order': 'asc'}
+# Dictionary to hold data from API
 ticket_data = {}
+# Window dimensions
 w_width = 700
 w_height = 450
 
 
+# Function that creates the url for GET request
 def get_url(url, params={}):
+    # construct url
     url += "?" + urlencode(params)
     return url
 
 
+# Function that closes the window
 def close_window(event=None):
     root.destroy()
 
 
+# Function to get data from API
 def get_data(prefix, headers, params={}) -> object:
     data = Data(get_url(prefix, params), headers)
     data.fetch_and_parse_data()
     return data.data
 
 
+# Function used to define button click event
 def get_data_helper(event=None):
     global ticket_data, ticket_frame
+    # try...except statement to handle errors in obtained data from the API
     try:
+        # getting data from the API
         ticket_data = get_data(url_prefix, url_headers, parameters)
+    # url is invalid
     except InvalidSchema:
         ticket_frame.destroy()
         ticket_frame = tk.Frame(master=root)
@@ -49,6 +63,7 @@ def get_data_helper(event=None):
         btn.pack()
         ticket_frame.pack()
         return
+    # no data was received from the API
     except KeyError:
         ticket_frame.destroy()
         ticket_frame = tk.Frame(master=root)
@@ -62,14 +77,16 @@ def get_data_helper(event=None):
     ticket_frame.destroy()
 
 
+# Functions to define an event to change text colour
 def blue_text(event=None):
-    lab.config(fg="purple")
+    lbl.config(fg="purple")
 
 
 def black_text(event=None):
-    lab.config(fg="blue")
+    lbl.config(fg="blue")
 
 
+# Function to centre window on the screen
 def centre_window(window, width, height):
     display_width = window.winfo_screenwidth()
     display_height = window.winfo_screenheight()
@@ -78,6 +95,7 @@ def centre_window(window, width, height):
     window.geometry("{}x{}+{}+{}".format(width, height, int(x), int(y)))
 
 
+# Function that creates a new window and display ticket data
 def open_ticket(num, event=None):
     global ticket_data
     ticket_root = tk.Tk()
@@ -93,7 +111,9 @@ def open_ticket(num, event=None):
     ticket_root.mainloop()
 
 
+# Function that defines an event to create the buttons on the window
 def create_buttons():
+    # create a canvas and scrollbar in order to scroll through displayed tickets
     canvas = tk.Canvas(ticket_frame)
     scrollbar = tk.Scrollbar(ticket_frame, orient="vertical", command=canvas.yview)
     scrollable_frame = tk.Frame(canvas)
@@ -103,6 +123,7 @@ def create_buttons():
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
     canvas.configure(yscrollcommand=scrollbar.set)
 
+    # for loop that creates buttons necessary to open tickets
     for i in range(25):
         if (i + j) < len(ticket_data):
             ticket_btn = tk.Button(master=scrollable_frame, text=ticket_data[i + j].subject, width=100)
@@ -116,6 +137,7 @@ def create_buttons():
     canvas.pack(side="left", fill="both", expand=True)
     scrollbar.pack(side="right", fill="y")
 
+    # decide which buttons to display for pagination
     if j >= 0 and ((j + 25) < len(ticket_data)):
         btn = tk.Button(master=pagination_frame, text="next")
         btn.bind('<Button-1>', next_page)
@@ -125,10 +147,12 @@ def create_buttons():
         btn.bind('<Button-1>', previous_page)
         btn.pack(side="left")
 
+    # display buttons on the window
     ticket_frame.pack(fill="both", expand=True)
     pagination_frame.pack()
 
 
+# Function that defines event to change to the next page
 def next_page(event=None):
     global j, ticket_frame, pagination_frame
     j += 25
@@ -136,6 +160,7 @@ def next_page(event=None):
     create_buttons()
 
 
+# Function that defines event to return to the previous page
 def previous_page(event=None):
     global j, ticket_frame, pagination_frame
     j -= 25
@@ -143,6 +168,7 @@ def previous_page(event=None):
     create_buttons()
 
 
+# Function to refresh window after changing page
 def refresh():
     global ticket_frame, pagination_frame
     ticket_frame.destroy()
@@ -151,10 +177,13 @@ def refresh():
     pagination_frame = tk.Frame(master=root, pady=7)
 
 
+# declare the main root window
 root = tk.Tk()
 root.geometry("%dx%d" % (w_width, w_height))
 root.resizable(False, False)
 centre_window(root, w_width, w_height)
+
+# declare frame to hold window title
 title_frame = tk.Frame(master=root)
 title_lbl = tk.Label(
     master=title_frame,
@@ -164,23 +193,30 @@ title_lbl = tk.Label(
 title_lbl.grid()
 title_frame.pack()
 
+# declare frame that will hold the buttons to open tickets
 ticket_frame = tk.Frame(master=root)
-
-lab = tk.Label(
+lbl = tk.Label(
     master=ticket_frame,
     text="Click here to load ticket data from '%s.zendesk.com'" % subdomain,
     font=('Helvetica', 12)
 )
-lab.bind("<Button-1>", get_data_helper)
-lab.bind("<Enter>", blue_text)
-lab.bind("<Leave>", black_text)
-lab.pack()
+# binds the text to change colour when under cursor
+lbl.bind("<Button-1>", get_data_helper)
+lbl.bind("<Enter>", blue_text)
+lbl.bind("<Leave>", black_text)
+lbl.pack()
 
+# display widgets on the window
 ticket_frame.pack()
-root.wait_window(lab)
+# wait for user to request data
+root.wait_window(lbl)
+
+# create frames for ticket buttons and pagination buttons
 ticket_frame = tk.Frame(master=root)
 pagination_frame = tk.Frame(master=root, pady=7)
 
 j = 0
+# create the initial ticket buttons
 create_buttons()
+# main loop for window
 root.mainloop()
