@@ -1,12 +1,10 @@
+import _tkinter
+from json import JSONDecodeError
 from tkinter import WORD, INSERT, END
 from urllib.parse import urlencode
-try:
-    import Tkinter as tkinter
-    import tk
-except:
-    import tkinter as tk
+import tkinter as tk
 
-from requests.exceptions import InvalidSchema
+from requests.exceptions import InvalidSchema, MissingSchema
 from Data import Data
 
 # Subdomain for my Zendesk agent
@@ -17,7 +15,7 @@ encoded = "cGF0cmljay5rZW9naDFAdWNkY29ubmVjdC5pZS90b2tlbjp1a05KSlVBaFRiMzRoMmZZe
 url_prefix = "https://%s.zendesk.com/api/v2/search.json" % subdomain
 # Headers to send with get request
 url_headers = {'Content-Type': 'application/json', 'Authorization': 'Basic %s' % encoded}
-# Headers to send with get request
+# Parameters to send with get request
 parameters = {'query': 'type:ticket', 'sort_by': 'created_at', 'sort_order': 'asc'}
 # Dictionary to hold data from API
 ticket_data = {}
@@ -27,7 +25,7 @@ w_height = 450
 
 
 # Function that creates the url for GET request
-def get_url(url, params={}):
+def get_url(url, params):
     # construct url
     url += "?" + urlencode(params)
     return url
@@ -39,7 +37,7 @@ def close_window(event=None):
 
 
 # Function to get data from API
-def get_data(prefix, headers, params={}) -> object:
+def get_data(prefix, headers, params) -> object:
     data = Data(get_url(prefix, params), headers)
     data.fetch_and_parse_data()
     return data.data
@@ -53,28 +51,32 @@ def get_data_helper(event=None):
         # getting data from the API
         ticket_data = get_data(url_prefix, url_headers, parameters)
     # url is invalid
+    except MissingSchema:
+        error_button("Could not connect to API")
+        return
     except InvalidSchema:
-        ticket_frame.destroy()
-        ticket_frame = tk.Frame(master=root)
-        error = tk.Label(master=ticket_frame, text="Could not connect to API", pady=5, font=('Helvetica bold', 16))
-        error.pack()
-        btn = tk.Button(master=ticket_frame, text="Exit", pady=5, width=5)
-        btn.bind('<Button-1>', close_window)
-        btn.pack()
-        ticket_frame.pack()
+        error_button("Could not connect to API")
         return
     # no data was received from the API
     except KeyError:
-        ticket_frame.destroy()
-        ticket_frame = tk.Frame(master=root)
-        error = tk.Label(master=ticket_frame, text="Did not receive any data from API", pady=5, font=('Helvetica bold', 16))
-        error.pack()
-        btn = tk.Button(master=ticket_frame, text="Exit", pady=5, width=5)
-        btn.bind('<Button-1>', close_window)
-        btn.pack()
-        ticket_frame.pack()
+        error_button("Did not receive any data from API")
+        return
+    except JSONDecodeError:
+        error_button("Did not receive any data from API")
         return
     ticket_frame.destroy()
+
+
+def error_button(msg):
+    global ticket_data, ticket_frame
+    ticket_frame.destroy()
+    ticket_frame = tk.Frame(master=root)
+    error = tk.Label(master=ticket_frame, text=msg, pady=5, font=('Helvetica bold', 16))
+    error.pack()
+    btn = tk.Button(master=ticket_frame, text="Exit", pady=5, width=5)
+    btn.bind('<Button-1>', close_window)
+    btn.pack()
+    ticket_frame.pack()
 
 
 # Functions to define an event to change text colour
@@ -132,6 +134,7 @@ def create_buttons():
         if (i + j) < len(ticket_data):
             ticket_btn = tk.Button(master=scrollable_frame, text=ticket_data[i + j].subject, width=100)
 
+            # create a function that defines an open_ticket event specific to current (i) ticket
             def handler(event, num=i + j):
                 return open_ticket(num, event)
 
@@ -215,12 +218,16 @@ ticket_frame.pack()
 # wait for user to request data
 root.wait_window(lbl)
 
-# create frames for ticket buttons and pagination buttons
-ticket_frame = tk.Frame(master=root)
-pagination_frame = tk.Frame(master=root, pady=7)
+# handles error if window is closed before data is requested
+try:
+    # create frames for ticket buttons and pagination buttons
+    ticket_frame = tk.Frame(master=root)
+    pagination_frame = tk.Frame(master=root, pady=7)
 
-j = 0
+    j = 0
 # create the initial ticket buttons
-create_buttons()
+    create_buttons()
+except _tkinter.TclError:
+    pass
 # main loop for window
 root.mainloop()
