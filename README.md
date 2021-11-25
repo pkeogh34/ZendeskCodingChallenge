@@ -1,7 +1,7 @@
 # ZendeskCodingChallenge
 Git repository for Zendesk Intern coding challenge
 
-Browser based application implemented in TK Interface. Retrieves ticket data from Zendesk Agent API.
+Browser based application implemented in TK Interface. Retrieves ticket data from Zendesk Agent API and displays to user.
 
 After running application e.g. from an IDE, a window will open, giving the user an option to click a link to retrieve the ticket data.
 
