@@ -1,4 +1,4 @@
-from tkinter import WORD, INSERT
+from tkinter import WORD, INSERT, END
 from urllib.parse import urlencode
 try:
     import Tkinter as tkinter
@@ -106,6 +106,10 @@ def open_ticket(num, event=None):
     text.insert(INSERT, "Requester ID: %s\n" % ticket_data[num].requester_id)
     text.insert(INSERT, "Status: %s\n\n" % ticket_data[num].status)
     text.insert(INSERT, ticket_data[num].description)
+    tags = ""
+    for tag in ticket_data[num].tags:
+        tags += "#%s" % tag
+    text.insert(END, tags)
     text.config(state='disabled')
     text.grid()
     ticket_root.mainloop()
