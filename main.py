@@ -112,7 +112,7 @@ def open_ticket(num, event=None):
     text.insert(INSERT, "Last updated: %s\n\n" % ticket_data[num].updated)
     text.insert(INSERT, "Requester ID: %s\n" % ticket_data[num].requester_id)
     text.insert(INSERT, "Status: %s\n\n" % ticket_data[num].status)
-    text.insert(INSERT, ticket_data[num].description)
+    text.insert(INSERT, ticket_data[num].description + "\n\n")
     tags = ""
     for tag in ticket_data[num].tags:
         tags += "#%s" % tag
