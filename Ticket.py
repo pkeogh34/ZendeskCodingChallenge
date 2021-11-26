@@ -1,3 +1,4 @@
+# contains the various pieces of information for a ticket
 class Ticket:
     def __init__(self, ticket_id, created, updated, ticket_type,  subject, description, status, tags,
                  requester_id):

@@ -10,7 +10,7 @@ from Data import Data
 # Subdomain for my Zendesk agent
 subdomain = "zcczendeskcodingchallenge6845"
 # String encoded with email and api key
-encoded = "GF0cmljay5rZW9naDFAdWNkY29ubmVjdC5pZS90b2tlbjp1a05KSlVBaFRiMzRoMmZZejVuVTNGcVdEN2NTSWh1MEd5dENLQm1T"
+encoded = "cGF0cmljay5rZW9naDFAdWNkY29ubmVjdC5pZS90b2tlbjp1a05KSlVBaFRiMzRoMmZZejVuVTNGcVdEN2NTSWh1MEd5dENLQm1T"
 # prefix of the Zendesk API website
 url_prefix = "https://%s.zendesk.com/api/v2/search.json" % subdomain
 # Headers to send with get request
@@ -82,6 +82,7 @@ def error_button(msg):
 
     ticket_frame.pack(fill="both", expand=True)
     root.wait_window(btn)
+
 
 # Functions to define an event to change text colour
 def purple_text(event=None):
@@ -234,7 +235,7 @@ try:
     pagination_frame = tk.Frame(master=root, pady=7)
 
     j = 0
-# create the initial ticket buttons
+    # create the initial ticket buttons
     create_buttons()
 except _tkinter.TclError:
     pass

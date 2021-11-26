@@ -1,7 +1,6 @@
 from datetime import datetime
 import json
 import requests
-from requests.exceptions import InvalidSchema, MissingSchema
 
 from Ticket import Ticket
 
