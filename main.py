@@ -10,7 +10,7 @@ from Data import Data
 # Subdomain for my Zendesk agent
 subdomain = "zcczendeskcodingchallenge6845"
 # String encoded with email and api key
-encoded = "cGF0cmljay5rZW9naDFAdWNkY29ubmVjdC5pZS90b2tlbjp1a05KSlVBaFRiMzRoMmZZejVuVTNGcVdEN2NTSWh1MEd5dENLQm1T"
+encoded = "GF0cmljay5rZW9naDFAdWNkY29ubmVjdC5pZS90b2tlbjp1a05KSlVBaFRiMzRoMmZZejVuVTNGcVdEN2NTSWh1MEd5dENLQm1T"
 # prefix of the Zendesk API website
 url_prefix = "https://%s.zendesk.com/api/v2/search.json" % subdomain
 # Headers to send with get request
@@ -22,6 +22,9 @@ ticket_data = {}
 # Window dimensions
 w_width = 700
 w_height = 450
+# Colour for background
+pale_kale = "#17494D"
+font = 'PROXIMA NOVA'
 
 
 # Function that creates the url for GET request
@@ -52,40 +55,41 @@ def get_data_helper(event=None):
         ticket_data = get_data(url_prefix, url_headers, parameters)
     # url is invalid
     except MissingSchema:
-        error_button("Could not connect to API")
-        return
+        error_button("Could not connect to the API")
     except InvalidSchema:
-        error_button("Could not connect to API")
-        return
+        error_button("Could not connect to the API")
     # no data was received from the API
     except KeyError:
-        error_button("Did not receive any data from API")
-        return
+        error_button("Did not receive any data from the API")
     except JSONDecodeError:
-        error_button("Did not receive any data from API")
-        return
-    ticket_frame.destroy()
+        error_button("Did not receive any data from the API")
+    try:
+        ticket_frame.destroy()
+    except tk.TclError:
+        pass
 
 
 def error_button(msg):
     global ticket_data, ticket_frame
     ticket_frame.destroy()
-    ticket_frame = tk.Frame(master=root)
-    error = tk.Label(master=ticket_frame, text=msg, pady=5, font=('Helvetica bold', 16))
+    ticket_frame = tk.Frame(master=root, bg=pale_kale)
+    error = tk.Label(master=ticket_frame, text=msg, pady=5, font=(font, 16), fg="white", bg=pale_kale)
     error.pack()
+
     btn = tk.Button(master=ticket_frame, text="Exit", pady=5, width=5)
     btn.bind('<Button-1>', close_window)
     btn.pack()
-    ticket_frame.pack()
 
+    ticket_frame.pack(fill="both", expand=True)
+    root.wait_window(btn)
 
 # Functions to define an event to change text colour
-def blue_text(event=None):
-    lbl.config(fg="purple")
+def purple_text(event=None):
+    lbl.config(fg="#7D3D54")
 
 
-def black_text(event=None):
-    lbl.config(fg="blue")
+def white_text(event=None):
+    lbl.config(fg="white")
 
 
 # Function to centre window on the screen
@@ -101,7 +105,7 @@ def centre_window(window, width, height):
 def open_ticket(num, event=None):
     global ticket_data
     ticket_root = tk.Tk()
-    text = tk.Text(ticket_root, wrap=WORD)
+    text = tk.Text(ticket_root, wrap=WORD, font=(font, 12))
     text.insert(INSERT, "Subject: %s\n\n" % ticket_data[num].subject)
     text.insert(INSERT, "Date created: %s\n" % ticket_data[num].created)
     text.insert(INSERT, "Last updated: %s\n\n" % ticket_data[num].updated)
@@ -180,7 +184,7 @@ def refresh():
     global ticket_frame, pagination_frame
     ticket_frame.destroy()
     pagination_frame.destroy()
-    ticket_frame = tk.Frame(master=root)
+    ticket_frame = tk.Frame(master=root, bg=pale_kale)
     pagination_frame = tk.Frame(master=root, pady=7)
 
 
@@ -191,37 +195,42 @@ root.resizable(False, False)
 centre_window(root, w_width, w_height)
 
 # declare frame to hold window title
-title_frame = tk.Frame(master=root)
+title_frame = tk.Frame(master=root, height=1)
 title_lbl = tk.Label(
     master=title_frame,
     text="Ticket Viewer",
-    font=('Helvetica bold', 35)
+    font=('SHARP SANS DISPLAY NO. 1', 35),
+    fg="#00A656",
+    bg=pale_kale,
+    width=w_width
 )
-title_lbl.grid()
+title_lbl.pack()
 title_frame.pack()
 
 # declare frame that will hold the buttons to open tickets
-ticket_frame = tk.Frame(master=root)
+ticket_frame = tk.Frame(master=root, bg=pale_kale)
 lbl = tk.Label(
     master=ticket_frame,
     text="Click here to load ticket data from '%s.zendesk.com'" % subdomain,
-    font=('Helvetica', 12)
+    font=(font, 12),
+    fg="white",
+    bg=pale_kale,
 )
 # binds the text to change colour when under cursor
 lbl.bind("<Button-1>", get_data_helper)
-lbl.bind("<Enter>", blue_text)
-lbl.bind("<Leave>", black_text)
+lbl.bind("<Enter>", purple_text)
+lbl.bind("<Leave>", white_text)
 lbl.pack()
 
 # display widgets on the window
-ticket_frame.pack()
+ticket_frame.pack(fill="both", expand=True)
 # wait for user to request data
 root.wait_window(lbl)
 
 # handles error if window is closed before data is requested
 try:
     # create frames for ticket buttons and pagination buttons
-    ticket_frame = tk.Frame(master=root)
+    ticket_frame = tk.Frame(master=root, bg=pale_kale)
     pagination_frame = tk.Frame(master=root, pady=7)
 
     j = 0
