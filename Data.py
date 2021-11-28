@@ -55,6 +55,7 @@ class Data:
                 t_data[ticket.ticket_id - 1] = ticket
         return t_data
 
+    # function to both fetch and parse data from the API
     def fetch_and_parse_data(self):
         data = self.fetch()
         self.data = self.parse_raw_data(data)

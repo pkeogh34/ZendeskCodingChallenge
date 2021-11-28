@@ -95,10 +95,13 @@ def white_text(event=None):
 
 # Function to centre window on the screen
 def centre_window(window, width, height):
+    # get screen dimensions
     display_width = window.winfo_screenwidth()
     display_height = window.winfo_screenheight()
+    # get coordinates for window to be placed at
     x = (display_width / 2) - (width / 2)
     y = (display_height / 2) - (height / 2)
+    # set the coordinates of the window
     window.geometry("{}x{}+{}+{}".format(width, height, int(x), int(y)))
 
 
@@ -107,6 +110,7 @@ def open_ticket(num, event=None):
     global ticket_data
     ticket_root = tk.Tk()
     text = tk.Text(ticket_root, wrap=WORD, font=(font, 12))
+    # insert each piece of info on the ticket into the text box
     text.insert(INSERT, "Subject: %s\n\n" % ticket_data[num].subject)
     text.insert(INSERT, "Date created: %s\n" % ticket_data[num].created)
     text.insert(INSERT, "Last updated: %s\n\n" % ticket_data[num].updated)
@@ -117,6 +121,7 @@ def open_ticket(num, event=None):
     for tag in ticket_data[num].tags:
         tags += "#%s" % tag
     text.insert(END, tags)
+    # prevent user from editing text
     text.config(state='disabled')
     text.grid()
     ticket_root.mainloop()
@@ -129,23 +134,29 @@ def create_buttons():
     scrollbar = tk.Scrollbar(ticket_frame, orient="vertical", command=canvas.yview)
     scrollable_frame = tk.Frame(canvas)
 
+    # binds event to call function to reconfigure canvas when size of scrollable frame changes
     scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
+    # add the scrollable frame to the canvas
     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+    # scrollbar moves when y-position of canvas changes
     canvas.configure(yscrollcommand=scrollbar.set)
 
     # for loop that creates buttons necessary to open tickets
     for i in range(25):
         if (i + j) < len(ticket_data):
+            # create a button
             ticket_btn = tk.Button(master=scrollable_frame, text=ticket_data[i + j].subject, width=100)
 
             # create a function that defines an open_ticket event specific to current (i) ticket
             def handler(event, num=i + j):
                 return open_ticket(num, event)
 
+            # bind button click to the handler
             ticket_btn.bind('<Button-1>', handler)
             ticket_btn.pack(fill="both", expand=True)
 
+    # add canvas and scrollbar to the ticket frame
     canvas.pack(side="left", fill="both", expand=True)
     scrollbar.pack(side="right", fill="y")
 
@@ -191,6 +202,7 @@ def refresh():
 
 # declare the main root window
 root = tk.Tk()
+# set size of window
 root.geometry("%dx%d" % (w_width, w_height))
 root.resizable(False, False)
 centre_window(root, w_width, w_height)
